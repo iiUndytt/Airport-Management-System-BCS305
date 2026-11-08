@@ -1,48 +1,70 @@
-# Airport Management System (BCS 305)
+# Airport Management System
 
-A small standalone Python prototype for our Software Architecture project. It uses only the standard library, so there is nothing to install (Python 3.8 or newer).
+This project is an Airport Management System created for Software Architecture BCS 305.
 
-## How to run
+System will be used to control flight, airport gates, passengers, bookings etc. It is further essential to allow travellers to sign in/up and get on-board their aircraft as well as ensuring that the basic rules in the airport are adhered to.
+
+## Main Features
+
+- Add and view flights.
+- Change flight statuses.
+Create gates and attach them to flights.
+- Register passengers.
+- Make bookings for space on available-flying aircraft.
+- Deny bookings when full flight.
+- Check in passengers and assign seats.
+- Be attentive to all passengers when the boarding door is open.
+- Show the states of flights.
+
+## Project Structure
+
+- `models.py` – Contains the main classes: Flight, Gate, Passenger, and Booking.
+The flight management system, gate assignments, booking and check-in/boarding will be managed from a "services.py".
+- `main.py` – Main Menu and demonstration.
+- `tests.py` – Test file for testing the functionality of the system.
+
+## Design Patterns
+
+The project is designed based on the following three patterns:
+
+**1. Observer Pattern**
+
+Used to notify other parts of the system whenever a flight's status changes. An example of this is if a flight is timed down, the departure board updates.
+
+**2. Strategy Pattern**
+
+Used for boarding validation purposes. Conditionals, such as passenger check-in and the open nature of the boarding are checked one by one.
+
+**3. Singleton Pattern**
+
+For use in the airport environment. It ensures that only a single configuration object is shared across the system and not multiple copies.
+
+## How to Run
+
+Ensure that Python 3.8+ is installed.
+
+From the project folder execute the following commands:
+
+Begin the interact menu:
 
 ```bash
-python main.py          # interactive menu
-python main.py demo     # short scripted walkthrough (good for the presentation)
-python tests.py         # run the tests
+python main.py
 ```
 
-The program starts with 3 gates (A1, A2, B1) and 3 flights (EK201 has only 4 seats, so it is easy to test a full flight).
+Run the demonstration:
 
-## What it does
-
-| Area | Features |
-|---|---|
-| Flights | add a flight, view flights, change flight status |
-| Gates | add a gate, assign a gate to a flight |
-| Passengers | add a passenger, book them on a flight, refuse the booking if the flight is full |
-| Check-in and boarding | check a passenger in (they get a seat), board them only while the flight is "Boarding" |
-
-Other rules that are enforced: check-in closes 60 minutes before departure (a setting), a cancelled or departed flight cannot be booked, a passenger cannot book the same flight twice, a gate can only serve one flight at a time, and a flight status can only change in the allowed order (see `ALLOWED_CHANGES` in `models.py`, it matches our state machine diagram).
-
-## Files
-
-```
-AirportSystem/
-├── models.py     Flight, Gate, Passenger, Booking (just data and small helper methods)
-├── services.py   FlightService (flights + gates) and BookingService (bookings, check-in, boarding)
-├── main.py       console menu and the demo
-├── tests.py      unit tests
-└── README.md
+```bash
+python main.py demo
 ```
 
-The dependencies only go one way: `main.py` uses `services.py`, which uses `models.py`.
+Run the tests:
 
-## Design patterns
+```bash
+python tests.py
+```
 
-**Observer** (`FlightService.add_listener` in `services.py`)
-Problem: when a flight changes status, other parts of the system want to know (a departure board, later maybe notifications), but `FlightService` should not have to know about them. Solution: other code registers a function with `add_listener`, and `FlightService` calls every registered function after a status change. In `main.py` the `departure_board` function is the listener. If a listener crashes, the status change still goes through (our availability tactic).
+## Notes
 
-**Strategy** (`MustBeCheckedIn`, `BoardingMustBeOpen`, `NotAlreadyBoarded` in `services.py`)
-Problem: boarding has several rules, and they will change over time (for example a passport check). Putting them all in one big `if` chain in `board()` would make it messy. Solution: every rule is its own small class with a `check()` method, and `BookingService` just loops over a list of rules. Adding or removing a rule means changing that list, not the `board()` method.
+The system includes, with samples of wings and gates, to enable to features to be readily tested by the system.
 
-**Singleton** (`AirportSettings` in `services.py`)
-Problem: some settings are used in several places (how many minutes before departure check-in closes, which seat letters each row has). If every service made its own copy, changing a setting in one place would not change it in the others. Solution: `AirportSettings()` always returns the same single object, so everyone reads the same values. Changing `AirportSettings().checkin_closes_minutes` changes the rule for the whole system (see `test_changing_settings_changes_the_rule` in `tests.py`).
+The project will be made a small working prototype exhibiting basic aspects of the airport operations and software architecture.
